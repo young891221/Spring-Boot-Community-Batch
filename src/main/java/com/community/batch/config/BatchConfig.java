@@ -4,6 +4,7 @@ import com.community.batch.tasklet.HelloTasklet;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
  * Created by KimYJ on 2018-03-06.
  */
 @Configuration
+@EnableBatchProcessing
 public class BatchConfig {
 
     @Autowired
