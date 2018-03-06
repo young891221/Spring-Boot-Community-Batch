@@ -27,12 +27,28 @@ public class BatchConfig {
 
     @Bean
     public Job simpleJob() {
-        SimpleJobBuilder simpleJobBuilder = jobBuilderFactory.get("simpleJob").start(step());
+        SimpleJobBuilder simpleJobBuilder = jobBuilderFactory
+                .get("simpleJob")
+                .start(step1());
         return simpleJobBuilder.build();
     }
 
     @Bean
-    public Step step() {
+    public Job commonJob() {
+        return jobBuilderFactory.get("commonJob")
+                .flow(step1())
+                .next(step2())
+                .end()
+                .build();
+    }
+
+    @Bean
+    public Step step1() {
         return stepBuilderFactory.get("testStep1").tasklet(new HelloTasklet()).build();
+    }
+
+    @Bean
+    public Step step2() {
+        return stepBuilderFactory.get("testStep2").tasklet(new HelloTasklet()).build();
     }
 }
