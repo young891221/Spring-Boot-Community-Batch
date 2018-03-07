@@ -1,5 +1,6 @@
 package com.community.batch.config;
 
+import com.community.batch.reader.UserReader;
 import com.community.batch.tasklet.HelloTasklet;
 
 import org.springframework.batch.core.Job;
@@ -51,4 +52,14 @@ public class BatchConfig {
     public Step step2() {
         return stepBuilderFactory.get("testStep2").tasklet(new HelloTasklet()).build();
     }
+
+    /*@Bean
+    public Step step3(UserReader userReader) {
+        return stepBuilderFactory.get("testStep2")
+                .chunk(3)
+                .reader(userReader)
+                .processor()
+                .writer()
+                .build();
+    }*/
 }
