@@ -58,7 +58,7 @@ public class InactiveUserJob {
     }
 
     public ItemProcessor<List<User>, List<User>> inactiveUserProcessor() {
-        return new InactiveUserProcessor();
+        return (List<User> users) -> users;
     }
 
     public ItemWriter<List<User>> inactiveUserWriter() {
