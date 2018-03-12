@@ -57,11 +57,11 @@ public class InactiveUserJob {
         return () -> userRepository.findAll();
     }
 
-    public ItemProcessor<List<User>, List<User>> inactiveUserProcessor() {
+    private ItemProcessor<List<User>, List<User>> inactiveUserProcessor() {
         return (List<User> users) -> users;
     }
 
-    public ItemWriter<List<User>> inactiveUserWriter() {
+    private ItemWriter<List<User>> inactiveUserWriter() {
         JpaItemWriter<List<User>> writer = new JpaItemWriter<>();
         writer.setEntityManagerFactory(entityManagerFactory);
         return writer;
