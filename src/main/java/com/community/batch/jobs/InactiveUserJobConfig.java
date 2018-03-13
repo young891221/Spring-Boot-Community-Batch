@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -62,8 +64,8 @@ public class InactiveUserJobConfig {
     }
 
     private ItemWriter<List<User>> inactiveUserWriter() {
-        JpaItemWriter<List<User>> writer = new JpaItemWriter<>();
-        writer.setEntityManagerFactory(entityManagerFactory);
-        return writer;
+        return ((List<? extends List<User>> items) ->
+                userRepository.saveAll(items.stream().flatMap(Collection::stream).collect(Collectors.toList()))
+        );
     }
 }
