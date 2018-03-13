@@ -23,7 +23,7 @@ import javax.persistence.EntityManagerFactory;
  * Created by KimYJ on 2018-03-07.
  */
 @Configuration
-public class InactiveUserJob {
+public class InactiveUserJobConfig {
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
