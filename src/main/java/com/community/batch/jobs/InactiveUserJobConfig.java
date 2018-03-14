@@ -49,11 +49,11 @@ public class InactiveUserJobConfig {
     }
 
     private ItemReader<User> inactiveUserReader() {
-        return () -> userRepository.findByCreatedDateAfter(LocalDateTime.now().minusYears(1));
+        return () -> userRepository.findByCreatedDateBefore(LocalDateTime.now().minusYears(1));
     }
 
     private ItemProcessor<User, User> inactiveUserProcessor() {
-        return (User user) -> user; //TODO: 휴면회원 검색
+        return User::setInactive;
     }
 
     private ItemWriter<User> inactiveUserWriter() {

@@ -70,4 +70,9 @@ public class User implements Serializable {
         this.createdDate = createdDate;
         this.updatedDate = updatedDate;
     }
+
+    public User setInactive() {
+        status = UserStatus.INACTIVE;
+        return this;
+    }
 }

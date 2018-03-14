@@ -23,7 +23,7 @@ public class TestBatchConfig {
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
-    @Bean
+    //@Bean
     public Job simpleJob() {
         SimpleJobBuilder simpleJobBuilder = jobBuilderFactory
                 .get("simpleJob")
@@ -31,7 +31,7 @@ public class TestBatchConfig {
         return simpleJobBuilder.build();
     }
 
-    @Bean
+    //@Bean
     public Job commonJob() {
         return jobBuilderFactory.get("commonJob")
                 .flow(step1())
@@ -40,12 +40,12 @@ public class TestBatchConfig {
                 .build();
     }
 
-    @Bean
+    //@Bean
     public Step step1() {
         return stepBuilderFactory.get("testStep1").tasklet(new HelloTasklet()).build();
     }
 
-    @Bean
+    //@Bean
     public Step step2() {
         return stepBuilderFactory.get("testStep2").tasklet(new HelloTasklet()).build();
     }
