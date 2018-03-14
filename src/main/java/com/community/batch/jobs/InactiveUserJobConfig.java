@@ -10,12 +10,14 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.time.LocalDateTime;
 import java.util.List;
+
+import javax.persistence.EntityManagerFactory;
 
 /**
  * Created by KimYJ on 2018-03-07.
@@ -32,6 +34,9 @@ public class InactiveUserJobConfig {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EntityManagerFactory entityManagerFactory;
+
     @Bean
     public Job inactiveUserJob() {
         return jobBuilderFactory.get("inactiveUserJob")
@@ -41,22 +46,24 @@ public class InactiveUserJobConfig {
 
     private Step inactiveJobStep() {
         return stepBuilderFactory.get("inactiveUserStep")
-                .<User, User> chunk(10)
+                .<List<User>, List<User>> chunk(10)
                 .reader(inactiveUserReader())
                 .processor(inactiveUserProcessor())
                 .writer(inactiveUserWriter())
                 .build();
     }
 
-    private ItemReader<User> inactiveUserReader() {
-        return () -> userRepository.findByCreatedDateAfter(LocalDateTime.now().minusYears(1));
+    private ItemReader<List<User>> inactiveUserReader() {
+        return () -> userRepository.findAll();
     }
 
-    private ItemProcessor<User, User> inactiveUserProcessor() {
-        return (User user) -> user; //TODO: 휴면회원 검색
+    private ItemProcessor<List<User>, List<User>> inactiveUserProcessor() {
+        return (List<User> users) -> users;
     }
 
-    private ItemWriter<User> inactiveUserWriter() {
-        return ((List<? extends User> users) -> userRepository.saveAll(users));
+    private ItemWriter<List<User>> inactiveUserWriter() {
+        JpaItemWriter<List<User>> writer = new JpaItemWriter<>();
+        writer.setEntityManagerFactory(entityManagerFactory);
+        return writer;
     }
 }
