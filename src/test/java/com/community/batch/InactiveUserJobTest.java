@@ -18,7 +18,9 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest
 @TestPropertySource(properties = {"job.name=" + "inactiveUserJob"})
 public class InactiveUserJobTest {
-	private JobLauncherTestUtils jobLauncherTestUtils = new JobLauncherTestUtils();
+
+	@Autowired
+	private JobLauncherTestUtils jobLauncherTestUtils;
 
 	@Autowired
 	private UserRepository userRepository;
