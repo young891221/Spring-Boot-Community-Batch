@@ -13,14 +13,17 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by KimYJ on 2018-03-07.
  */
 @Configuration
+@Transactional
 public class InactiveUserJobConfig {
 
     @Autowired
@@ -41,23 +44,23 @@ public class InactiveUserJobConfig {
 
     private Step inactiveJobStep() {
         return stepBuilderFactory.get("inactiveUserStep")
-                .<User, User> chunk(10)
+                .<List<User>, List<User>> chunk(1)
                 .reader(inactiveUserReader())
                 .processor(inactiveUserProcessor())
                 .writer(inactiveUserWriter())
                 .build();
     }
 
-    private ItemReader<User> inactiveUserReader() {
-        return () -> userRepository.findByCreatedDateBefore(LocalDateTime.now().minusYears(1));
+    private ItemReader<List<User>> inactiveUserReader() {
+        return () -> userRepository.findByCreatedDateBefore(LocalDateTime.now().minusYears(1)); //쿼리자체가 리스트형식을 반환하기에 리스트로 변경
     }
 
-    private ItemProcessor<User, User> inactiveUserProcessor() {
-        return User::setInactive;
+    private ItemProcessor<List<User>, List<User>> inactiveUserProcessor() {
+        return users -> users.stream().peek(User::setInactive).collect(Collectors.toList());
     }
 
-    private ItemWriter<User> inactiveUserWriter() {
-        return ((List<? extends User> users) ->
-                userRepository.saveAll(users));
+    private ItemWriter<List<User>> inactiveUserWriter() {
+        return ((List<? extends List<User>> items) ->
+                items.stream().forEach(users -> userRepository.saveAll(users)));
     }
 }
