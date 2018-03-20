@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,6 +24,7 @@ import lombok.NoArgsConstructor;
  * Created by KimYJ on 2017-07-12.
  */
 @Getter
+@EqualsAndHashCode(of = {"idx", "email"})
 @NoArgsConstructor
 @Entity
 @Table

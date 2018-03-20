@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
@@ -27,16 +29,23 @@ public class BatchApplication {
 
 	@Bean
 	public CommandLineRunner runner(UserRepository userRepository) {
-		return (args) -> IntStream.rangeClosed(1, 200).forEach(index -> {
-			long randomDay = ThreadLocalRandom.current().nextLong(MIN_DAY, MAX_DAY);
-			LocalDateTime randomDateTime = LocalDateTime.of(LocalDate.ofEpochDay(randomDay), LocalTime.MIN);
+		return (args) -> {
+			List<User> users = new ArrayList<>();
 
-			userRepository.save(User.builder()
-					.name("user" + index)
-					.password("test" + index)
-					.email("test@gmail.com")
-					.createdDate(randomDateTime)
-					.build());
-		});
+			IntStream.rangeClosed(1, 200).forEach(index ->
+					users.add(User.builder()
+							.name("user" + index)
+							.password("test" + index)
+							.email("test@gmail.com")
+							.createdDate(makeRandomDateTime())
+							.build()));
+
+			userRepository.saveAll(users);
+		};
+	}
+
+	private LocalDateTime makeRandomDateTime() {
+		long randomDay = ThreadLocalRandom.current().nextLong(MIN_DAY, MAX_DAY);
+		return LocalDateTime.of(LocalDate.ofEpochDay(randomDay), LocalTime.MIN);
 	}
 }
