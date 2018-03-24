@@ -11,3 +11,6 @@ spring:
   h2:
     console:
       enabled: false
+  batch:
+    job:
+      enabled: false #어플리케이션 구동시 컨텍스트 내의 모든 스프링 배치 작업 수행 여부

@@ -1,6 +1,7 @@
 package com.community.batch;
 
 import com.community.batch.domain.User;
+import com.community.batch.domain.enums.UserStatus;
 import com.community.batch.repository.UserRepository;
 
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -32,11 +33,12 @@ public class BatchApplication {
 		return (args) -> {
 			List<User> users = new ArrayList<>();
 
-			IntStream.rangeClosed(1, 200).forEach(index ->
+			IntStream.rangeClosed(1, 100).forEach(index ->
 					users.add(User.builder()
 							.name("user" + index)
 							.password("test" + index)
 							.email("test@gmail.com")
+							.status(UserStatus.ACTIVE)
 							.createdDate(makeRandomDateTime())
 							.build()));
 

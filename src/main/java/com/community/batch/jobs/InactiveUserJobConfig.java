@@ -1,6 +1,7 @@
 package com.community.batch.jobs;
 
 import com.community.batch.domain.User;
+import com.community.batch.domain.enums.UserStatus;
 import com.community.batch.repository.UserRepository;
 
 import org.springframework.batch.core.Job;
@@ -38,6 +39,7 @@ public class InactiveUserJobConfig {
     @Bean
     public Job inactiveUserJob() {
         return jobBuilderFactory.get("inactiveUserJob")
+                .preventRestart()
                 .start(inactiveJobStep())
                 .build();
     }
@@ -52,7 +54,14 @@ public class InactiveUserJobConfig {
     }
 
     private ItemReader<List<User>> inactiveUserReader() {
-        return () -> userRepository.findByCreatedDateBefore(LocalDateTime.now().minusYears(1)); //쿼리자체가 리스트형식을 반환하기에 리스트로 변경
+        return () -> {
+            List<User> oldUsers = userRepository.findByCreatedDateBeforeAndStatusEquals(LocalDateTime.now().minusYears(1), UserStatus.ACTIVE); //쿼리자체가 리스트형식을 반환하기에 리스트로 변경
+
+            if(oldUsers.isEmpty()) {
+                return null;
+            }
+            return oldUsers;
+        };
     }
 
     private ItemProcessor<List<User>, List<User>> inactiveUserProcessor() {
