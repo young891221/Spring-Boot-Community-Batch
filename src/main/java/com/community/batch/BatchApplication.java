@@ -39,7 +39,8 @@ public class BatchApplication {
 							.password("test" + index)
 							.email("test@gmail.com")
 							.status(UserStatus.ACTIVE)
-							.createdDate(makeRandomDateTime())
+							.createdDate(LocalDateTime.of(2015, 3, 1, 0, 0))
+							.updatedDate(makeRandomDateTime())
 							.build()));
 
 			userRepository.saveAll(users);

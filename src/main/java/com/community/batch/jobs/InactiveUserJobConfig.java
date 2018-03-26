@@ -46,7 +46,7 @@ public class InactiveUserJobConfig {
 
     private Step inactiveJobStep() {
         return stepBuilderFactory.get("inactiveUserStep")
-                .<List<User>, List<User>> chunk(1)
+                .<List<User>, List<User>> chunk(10)
                 .reader(inactiveUserReader())
                 .processor(inactiveUserProcessor())
                 .writer(inactiveUserWriter())
@@ -55,7 +55,7 @@ public class InactiveUserJobConfig {
 
     private ItemReader<List<User>> inactiveUserReader() {
         return () -> {
-            List<User> oldUsers = userRepository.findByCreatedDateBeforeAndStatusEquals(LocalDateTime.now().minusYears(1), UserStatus.ACTIVE); //쿼리자체가 리스트형식을 반환하기에 리스트로 변경
+            List<User> oldUsers = userRepository.findByUpdatedDateBeforeAndStatusEquals(LocalDateTime.now().minusYears(1), UserStatus.ACTIVE);
 
             if(oldUsers.isEmpty()) {
                 return null;
