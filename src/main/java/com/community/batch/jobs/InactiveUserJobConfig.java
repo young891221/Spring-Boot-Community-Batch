@@ -2,29 +2,28 @@ package com.community.batch.jobs;
 
 import com.community.batch.domain.User;
 import com.community.batch.domain.enums.UserStatus;
+import com.community.batch.jobs.readers.QueueItemReader;
 import com.community.batch.repository.UserRepository;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by KimYJ on 2018-03-07.
  */
 @Configuration
-@Transactional
 public class InactiveUserJobConfig {
 
     @Autowired
@@ -44,32 +43,32 @@ public class InactiveUserJobConfig {
                 .build();
     }
 
-    private Step inactiveJobStep() {
+    @Bean
+    public Step inactiveJobStep() {
         return stepBuilderFactory.get("inactiveUserStep")
-                .<List<User>, List<User>> chunk(10)
+                .<User, User> chunk(10)
                 .reader(inactiveUserReader())
                 .processor(inactiveUserProcessor())
                 .writer(inactiveUserWriter())
                 .build();
     }
 
-    private ItemReader<List<User>> inactiveUserReader() {
-        return () -> {
-            List<User> oldUsers = userRepository.findByUpdatedDateBeforeAndStatusEquals(LocalDateTime.now().minusYears(1), UserStatus.ACTIVE);
-
-            if(oldUsers.isEmpty()) {
-                return null;
-            }
-            return oldUsers;
-        };
+    @Bean
+    @StepScope
+    public ItemReader<User> inactiveUserReader() {
+        List<User> oldUsers = userRepository.findByUpdatedDateBeforeAndStatusEquals(LocalDateTime.now().minusYears(1), UserStatus.ACTIVE);
+        return new QueueItemReader<>(oldUsers);
     }
 
-    private ItemProcessor<List<User>, List<User>> inactiveUserProcessor() {
-        return users -> users.stream().peek(User::setInactive).collect(Collectors.toList());
+    @Bean
+    @StepScope
+    public ItemProcessor<User, User> inactiveUserProcessor() {
+        return User::setInactive;
     }
 
-    private ItemWriter<List<User>> inactiveUserWriter() {
-        return ((List<? extends List<User>> items) ->
-                items.stream().forEach(users -> userRepository.saveAll(users)));
+    @Bean
+    @StepScope
+    public ItemWriter<User> inactiveUserWriter() {
+        return ((List<? extends User> users) -> userRepository.saveAll(users));
     }
 }
