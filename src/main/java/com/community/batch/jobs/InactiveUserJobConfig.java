@@ -64,6 +64,14 @@ public class InactiveUserJobConfig {
     @StepScope
     public ItemProcessor<User, User> inactiveUserProcessor() {
         return User::setInactive;
+        /*return new ItemProcessor<User, User>() {
+
+            @Override
+            public User process(User user) throws Exception {
+                return user.setInactive();
+            }
+
+        };*/
     }
 
     @Bean
