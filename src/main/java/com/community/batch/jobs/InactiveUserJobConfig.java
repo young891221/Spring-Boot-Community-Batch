@@ -25,14 +25,16 @@ import java.util.List;
 @Configuration
 public class InactiveUserJobConfig {
 
-    @Autowired
-    private JobBuilderFactory jobBuilderFactory;
+    private final JobBuilderFactory jobBuilderFactory;
+    private final StepBuilderFactory stepBuilderFactory;
+    private final UserRepository userRepository;
 
     @Autowired
-    private StepBuilderFactory stepBuilderFactory;
-
-    @Autowired
-    private UserRepository userRepository;
+    public InactiveUserJobConfig(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory, UserRepository userRepository) {
+        this.jobBuilderFactory = jobBuilderFactory;
+        this.stepBuilderFactory = stepBuilderFactory;
+        this.userRepository = userRepository;
+    }
 
     @Bean
     public Job inactiveUserJob() {
@@ -42,7 +44,7 @@ public class InactiveUserJobConfig {
                 .build();
     }
 
-    public Step inactiveJobStep() {
+    private Step inactiveJobStep() {
         return stepBuilderFactory.get("inactiveUserStep")
                 .<User, User> chunk(10)
                 .reader(inactiveUserReader())
