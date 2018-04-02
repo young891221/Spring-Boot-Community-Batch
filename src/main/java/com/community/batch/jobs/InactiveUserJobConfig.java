@@ -2,6 +2,8 @@ package com.community.batch.jobs;
 
 import com.community.batch.domain.User;
 import com.community.batch.domain.enums.UserStatus;
+import com.community.batch.jobs.inactive.InactiveItemProcessor;
+import com.community.batch.jobs.inactive.InactiveItemWriter;
 import com.community.batch.jobs.readers.QueueItemReader;
 import com.community.batch.repository.UserRepository;
 
@@ -10,9 +12,6 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +42,6 @@ public class InactiveUserJobConfig {
                 .build();
     }
 
-    @Bean
     public Step inactiveJobStep() {
         return stepBuilderFactory.get("inactiveUserStep")
                 .<User, User> chunk(10)
@@ -55,28 +53,20 @@ public class InactiveUserJobConfig {
 
     @Bean
     @StepScope
-    public ItemReader<User> inactiveUserReader() {
+    public QueueItemReader<User> inactiveUserReader() {
         List<User> oldUsers = userRepository.findByUpdatedDateBeforeAndStatusEquals(LocalDateTime.now().minusYears(1), UserStatus.ACTIVE);
         return new QueueItemReader<>(oldUsers);
     }
 
     @Bean
     @StepScope
-    public ItemProcessor<User, User> inactiveUserProcessor() {
-        return User::setInactive;
-        /*return new ItemProcessor<User, User>() {
-
-            @Override
-            public User process(User user) throws Exception {
-                return user.setInactive();
-            }
-
-        };*/
+    public InactiveItemProcessor inactiveUserProcessor() {
+        return new InactiveItemProcessor();
     }
 
     @Bean
     @StepScope
-    public ItemWriter<User> inactiveUserWriter() {
-        return ((List<? extends User> users) -> userRepository.saveAll(users));
+    public InactiveItemWriter inactiveUserWriter() {
+        return new InactiveItemWriter(userRepository);
     }
 }
