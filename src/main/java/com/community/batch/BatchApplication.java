@@ -43,7 +43,7 @@ public class BatchApplication {
 							.updatedDate(makeRandomDateTime())
 							.build()));
 
-			userRepository.saveAll(users);
+			//userRepository.saveAll(users);
 		};
 	}
 

@@ -3,7 +3,6 @@ package com.community.batch.jobs;
 import com.community.batch.domain.User;
 import com.community.batch.domain.enums.UserStatus;
 import com.community.batch.jobs.inactive.InactiveItemProcessor;
-import com.community.batch.jobs.inactive.InactiveItemWriter;
 import com.community.batch.jobs.readers.QueueItemReader;
 import com.community.batch.repository.UserRepository;
 
@@ -12,29 +11,29 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.persistence.EntityManagerFactory;
+
+import lombok.AllArgsConstructor;
+
 /**
  * Created by KimYJ on 2018-03-07.
  */
 @Configuration
+@AllArgsConstructor
 public class InactiveUserJobConfig {
 
+    private final QueueItemReader<User> inactiveUserReader;
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final UserRepository userRepository;
-
-    @Autowired
-    public InactiveUserJobConfig(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory, UserRepository userRepository) {
-        this.jobBuilderFactory = jobBuilderFactory;
-        this.stepBuilderFactory = stepBuilderFactory;
-        this.userRepository = userRepository;
-    }
+    private final EntityManagerFactory entityManagerFactory;
 
     @Bean
     public Job inactiveUserJob() {
@@ -47,7 +46,7 @@ public class InactiveUserJobConfig {
     private Step inactiveJobStep() {
         return stepBuilderFactory.get("inactiveUserStep")
                 .<User, User> chunk(10)
-                .reader(inactiveUserReader())
+                .reader(inactiveUserReader)
                 .processor(inactiveUserProcessor())
                 .writer(inactiveUserWriter())
                 .build();
@@ -61,14 +60,14 @@ public class InactiveUserJobConfig {
     }
 
     @Bean
-    @StepScope
     public InactiveItemProcessor inactiveUserProcessor() {
         return new InactiveItemProcessor();
     }
 
     @Bean
-    @StepScope
-    public InactiveItemWriter inactiveUserWriter() {
-        return new InactiveItemWriter(userRepository);
+    public JpaItemWriter<User> inactiveUserWriter() {
+        JpaItemWriter jpaItemWriter = new JpaItemWriter<>();
+        jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
+        return jpaItemWriter;
     }
 }
