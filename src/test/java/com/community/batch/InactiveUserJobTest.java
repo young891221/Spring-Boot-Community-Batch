@@ -1,12 +1,19 @@
 package com.community.batch;
 
 import com.community.batch.domain.User;
+import com.community.batch.domain.enums.UserStatus;
+import com.community.batch.jobs.common.readers.QueueItemReader;
 import com.community.batch.repository.UserRepository;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.JobParameter;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,16 +23,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
 import static com.community.batch.domain.enums.UserStatus.ACTIVE;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
@@ -37,11 +43,11 @@ public class InactiveUserJobTest {
 	@Autowired
 	private JobLauncherTestUtils jobLauncherTestUtils;
 
-	@Autowired
+	@Mock
 	private UserRepository userRepository;
 
-	@MockBean(name = "userRepository")
-	private UserRepository mockUserRepository;
+	/*@Mock(name = "userRepository")
+	private UserRepository mockUserRepository;*/
 
 	/*@MockBean(name = "inactiveUserReader")
 	private QueueItemReader<User> mockReader;*/
@@ -60,7 +66,9 @@ public class InactiveUserJobTest {
 						.updatedDate(makeRandomDateTime())
 						.build()));
 
-		when(mockUserRepository.findByUpdatedDateBeforeAndStatusEquals(any(LocalDateTime.class), ACTIVE)).thenReturn(users);
+		Date nowDate = new Date();
+		LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
+		when(userRepository.findByUpdatedDateBeforeAndStatusEquals(now.minusYears(1), ACTIVE)).thenReturn(users);
 
 		/*when(mockReader.read()).thenReturn(User.builder()
 				.name("user")
@@ -71,7 +79,7 @@ public class InactiveUserJobTest {
 				.updatedDate(LocalDateTime.of(2015, 3, 1, 0, 0))
 				.build(), null);*/
 
-		JobExecution jobExecution = jobLauncherTestUtils.launchJob();
+		JobExecution jobExecution = jobLauncherTestUtils.launchJob(new JobParametersBuilder().addDate("nowDate", nowDate).toJobParameters());
 
 		assertEquals(BatchStatus.COMPLETED, jobExecution.getStatus());
 		assertEquals(100, userRepository.findAll().size());

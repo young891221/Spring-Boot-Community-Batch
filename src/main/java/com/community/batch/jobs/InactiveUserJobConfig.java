@@ -2,8 +2,8 @@ package com.community.batch.jobs;
 
 import com.community.batch.domain.User;
 import com.community.batch.domain.enums.UserStatus;
-import com.community.batch.jobs.inactive.InactiveItemProcessor;
 import com.community.batch.jobs.common.readers.QueueItemReader;
+import com.community.batch.jobs.inactive.InactiveItemProcessor;
 import com.community.batch.repository.UserRepository;
 
 import org.springframework.batch.core.Job;
@@ -12,10 +12,13 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JpaItemWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManagerFactory;
@@ -46,6 +49,7 @@ public class InactiveUserJobConfig {
     private Step inactiveJobStep() {
         return stepBuilderFactory.get("inactiveUserStep")
                 .<User, User> chunk(10)
+                //.readerIsTransactionalQueue()
                 .reader(inactiveUserReader)
                 .processor(inactiveUserProcessor())
                 .writer(inactiveUserWriter())
@@ -54,18 +58,17 @@ public class InactiveUserJobConfig {
 
     @Bean
     @StepScope
-    public QueueItemReader<User> inactiveUserReader() {
-        List<User> oldUsers = userRepository.findByUpdatedDateBeforeAndStatusEquals(LocalDateTime.now().minusYears(1), UserStatus.ACTIVE);
+    public QueueItemReader<User> inactiveUserReader(@Value("#{jobParameters[nowDate]}") Date nowDate) {
+        LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
+        List<User> oldUsers = userRepository.findByUpdatedDateBeforeAndStatusEquals(now.minusYears(1), UserStatus.ACTIVE);
         return new QueueItemReader<>(oldUsers);
     }
 
-    @Bean
-    public InactiveItemProcessor inactiveUserProcessor() {
+    private InactiveItemProcessor inactiveUserProcessor() {
         return new InactiveItemProcessor();
     }
 
-    @Bean
-    public JpaItemWriter<User> inactiveUserWriter() {
+    private JpaItemWriter<User> inactiveUserWriter() {
         JpaItemWriter jpaItemWriter = new JpaItemWriter<>();
         jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
         return jpaItemWriter;
