@@ -3,7 +3,7 @@ package com.community.batch.jobs;
 import com.community.batch.domain.User;
 import com.community.batch.domain.enums.UserStatus;
 import com.community.batch.jobs.inactive.InactiveItemProcessor;
-import com.community.batch.jobs.readers.QueueItemReader;
+import com.community.batch.jobs.common.readers.QueueItemReader;
 import com.community.batch.repository.UserRepository;
 
 import org.springframework.batch.core.Job;

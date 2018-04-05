@@ -1,4 +1,4 @@
-package com.community.batch.jobs.readers;
+package com.community.batch.jobs.common.readers;
 
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;

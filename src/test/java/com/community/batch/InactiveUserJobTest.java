@@ -1,12 +1,10 @@
 package com.community.batch;
 
 import com.community.batch.domain.User;
-import com.community.batch.jobs.readers.QueueItemReader;
 import com.community.batch.repository.UserRepository;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.test.JobLauncherTestUtils;
@@ -26,10 +24,7 @@ import java.util.stream.IntStream;
 import static com.community.batch.domain.enums.UserStatus.ACTIVE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
-import static org.mockito.ArgumentMatchers.anyVararg;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.when;
 
