@@ -49,9 +49,6 @@ public class InactiveUserJobTest {
 	/*@Mock(name = "userRepository")
 	private UserRepository mockUserRepository;*/
 
-	/*@MockBean(name = "inactiveUserReader")
-	private QueueItemReader<User> mockReader;*/
-
 	@Test
 	public void 휴면_회원_전환_테스트() throws Exception {
 		List<User> users = new ArrayList<>();
@@ -69,15 +66,6 @@ public class InactiveUserJobTest {
 		Date nowDate = new Date();
 		LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
 		when(userRepository.findByUpdatedDateBeforeAndStatusEquals(now.minusYears(1), ACTIVE)).thenReturn(users);
-
-		/*when(mockReader.read()).thenReturn(User.builder()
-				.name("user")
-				.password("test")
-				.email("test@gmail.com")
-				.status(UserStatus.ACTIVE)
-				.createdDate(LocalDateTime.of(2015, 3, 1, 0, 0))
-				.updatedDate(LocalDateTime.of(2015, 3, 1, 0, 0))
-				.build(), null);*/
 
 		JobExecution jobExecution = jobLauncherTestUtils.launchJob(new JobParametersBuilder().addDate("nowDate", nowDate).toJobParameters());
 
