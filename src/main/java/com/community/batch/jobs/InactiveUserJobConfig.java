@@ -11,6 +11,7 @@ import org.springframework.batch.core.configuration.annotation.JobBuilderFactory
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JpaItemWriter;
+import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +21,9 @@ import javax.persistence.EntityManagerFactory;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by KimYJ on 2018-03-07.
@@ -30,6 +33,7 @@ import java.util.List;
 public class InactiveUserJobConfig {
 
     private final ListItemReader<User> inactiveUserReader;
+    private final JpaPagingItemReader<User> inactiveUserJpaReader;
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
     private final UserRepository userRepository;
@@ -47,7 +51,7 @@ public class InactiveUserJobConfig {
         return stepBuilderFactory.get("inactiveUserStep")
                 .<User, User> chunk(10)
                 //.readerIsTransactionalQueue()
-                .reader(inactiveUserReader)
+                .reader(inactiveUserJpaReader)
                 .processor(inactiveUserProcessor())
                 .writer(inactiveUserWriter())
                 .build();
@@ -59,6 +63,23 @@ public class InactiveUserJobConfig {
         LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
         List<User> inactiveUsers = userRepository.findByUpdatedDateBeforeAndStatusEquals(now.minusYears(1), UserStatus.ACTIVE);
         return new ListItemReader<>(inactiveUsers);
+    }
+
+    @Bean
+    @StepScope
+    public JpaPagingItemReader<User> inactiveUserJpaReader(@Value("#{jobParameters[nowDate]}") Date nowDate) {
+        JpaPagingItemReader jpaPagingItemReader = new JpaPagingItemReader<User>();
+        jpaPagingItemReader.setQueryString("select u from User as u where u.updatedDate < :updatedDate and u.status = :status");
+
+        Map<String, Object> map = new HashMap<>();
+        LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
+        map.put("updatedDate", now);
+        map.put("status", UserStatus.ACTIVE);
+
+        jpaPagingItemReader.setParameterValues(map);
+        jpaPagingItemReader.setEntityManagerFactory(entityManagerFactory);
+        jpaPagingItemReader.setPageSize(10);
+        return jpaPagingItemReader;
     }
 
     private InactiveItemProcessor inactiveUserProcessor() {

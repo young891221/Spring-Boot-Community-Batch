@@ -1,0 +1,3 @@
+insert into user (idx, email, name, password, social_type, status, created_date, updated_date) values (1000, 'test@test.com', 'test', 'test', 'FACEBOOK', 'ACTIVE', '2016-03-01T00:00:00', '2016-03-01T00:00:00');
+insert into user (idx, email, name, password, social_type, status, created_date, updated_date) values (1001, 'test1@test.com', 'test1', 'test1', 'FACEBOOK', 'ACTIVE', '2016-03-01T00:00:00', '2016-03-01T00:00:00');
+insert into user (idx, email, name, password, social_type, status, created_date, updated_date) values (1002, 'test2@test.com', 'test2', 'test2', 'FACEBOOK', 'ACTIVE', '2016-03-01T00:00:00', '2016-03-01T00:00:00');

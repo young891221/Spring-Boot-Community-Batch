@@ -25,7 +25,6 @@ import java.util.stream.IntStream;
 
 import static com.community.batch.domain.enums.UserStatus.ACTIVE;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -53,7 +52,7 @@ public class InactiveUserJobTest {
 
 		Date nowDate = new Date();
 		LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
-		when(userRepository.findByUpdatedDateBeforeAndStatusEquals(now.minusYears(1), ACTIVE)).thenReturn(users);
+		//when(userRepository.findByUpdatedDateBeforeAndStatusEquals(now.minusYears(1), ACTIVE)).thenReturn(users);
 
 		JobExecution jobExecution = jobLauncherTestUtils.launchJob(new JobParametersBuilder().addDate("nowDate", nowDate).toJobParameters());
 
