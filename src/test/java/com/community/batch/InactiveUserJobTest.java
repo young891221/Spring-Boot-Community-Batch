@@ -51,7 +51,7 @@ public class InactiveUserJobTest {
 						.build()));
 
 		Date nowDate = new Date();
-		LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
+		//LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
 		//when(userRepository.findByUpdatedDateBeforeAndStatusEquals(now.minusYears(1), ACTIVE)).thenReturn(users);
 
 		JobExecution jobExecution = jobLauncherTestUtils.launchJob(new JobParametersBuilder().addDate("nowDate", nowDate).toJobParameters());
