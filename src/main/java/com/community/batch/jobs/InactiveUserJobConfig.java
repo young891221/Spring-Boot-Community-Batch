@@ -49,7 +49,7 @@ public class InactiveUserJobConfig {
 
     private Step inactiveJobStep() {
         return stepBuilderFactory.get("inactiveUserStep")
-                .<User, User> chunk(10)
+                .<User, User> chunk(5)
                 //.readerIsTransactionalQueue()
                 .reader(inactiveUserJpaReader)
                 .processor(inactiveUserProcessor())
@@ -78,7 +78,7 @@ public class InactiveUserJobConfig {
 
         jpaPagingItemReader.setParameterValues(map);
         jpaPagingItemReader.setEntityManagerFactory(entityManagerFactory);
-        jpaPagingItemReader.setPageSize(10);
+        jpaPagingItemReader.setPageSize(5);
         return jpaPagingItemReader;
     }
 
