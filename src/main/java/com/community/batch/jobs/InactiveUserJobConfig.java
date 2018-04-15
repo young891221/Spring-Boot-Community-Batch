@@ -2,9 +2,9 @@ package com.community.batch.jobs;
 
 import com.community.batch.domain.User;
 import com.community.batch.domain.enums.UserStatus;
+import com.community.batch.jobs.inactive.InactiveItemProcessor;
 import com.community.batch.jobs.inactive.listener.InactiveChunkListener;
 import com.community.batch.jobs.inactive.listener.InactiveIJobListener;
-import com.community.batch.jobs.inactive.InactiveItemProcessor;
 import com.community.batch.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -33,12 +33,13 @@ import java.util.Map;
 @Configuration
 @AllArgsConstructor
 public class InactiveUserJobConfig {
+    private final static int CHUNK_SIZE = 5;
 
     private final ListItemReader<User> inactiveUserReader;
+    private final UserRepository userRepository;
     private final JpaPagingItemReader<User> inactiveUserJpaReader;
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
-    private final UserRepository userRepository;
     private final EntityManagerFactory entityManagerFactory;
     private final InactiveIJobListener inactiveIJobListener;
     private final InactiveChunkListener inactiveChunkListener;
@@ -54,9 +55,9 @@ public class InactiveUserJobConfig {
 
     private Step inactiveJobStep() {
         return stepBuilderFactory.get("inactiveUserStep")
-                .<User, User> chunk(5)
+                .<User, User> chunk(CHUNK_SIZE)
                 //.readerIsTransactionalQueue()
-                .reader(inactiveUserJpaReader)
+                .reader(inactiveUserReader)
                 .processor(inactiveUserProcessor())
                 .writer(inactiveUserWriter())
                 .listener(inactiveChunkListener)
@@ -71,20 +72,20 @@ public class InactiveUserJobConfig {
         return new ListItemReader<>(inactiveUsers);
     }
 
-    @Bean
+    @Bean(destroyMethod="") //스프링은 destroyMethod를 사용할때 자동으로 유추하려 하는데 이 기능을 사용하지 않도록 하여 warning 메시지 삭제
     @StepScope
     public JpaPagingItemReader<User> inactiveUserJpaReader(@Value("#{jobParameters[nowDate]}") Date nowDate) {
-        JpaPagingItemReader jpaPagingItemReader = new JpaPagingItemReader<User>();
+        JpaPagingItemReader<User> jpaPagingItemReader = new JpaPagingItemReader<>();
         jpaPagingItemReader.setQueryString("select u from User as u where u.updatedDate < :updatedDate and u.status = :status");
 
         Map<String, Object> map = new HashMap<>();
         LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
-        map.put("updatedDate", now);
+        map.put("updatedDate", now.minusYears(1));
         map.put("status", UserStatus.ACTIVE);
 
         jpaPagingItemReader.setParameterValues(map);
         jpaPagingItemReader.setEntityManagerFactory(entityManagerFactory);
-        jpaPagingItemReader.setPageSize(5);
+        jpaPagingItemReader.setPageSize(CHUNK_SIZE);
         return jpaPagingItemReader;
     }
 
@@ -93,7 +94,7 @@ public class InactiveUserJobConfig {
     }
 
     private JpaItemWriter<User> inactiveUserWriter() {
-        JpaItemWriter jpaItemWriter = new JpaItemWriter<>();
+        JpaItemWriter<User> jpaItemWriter = new JpaItemWriter<>();
         jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
         return jpaItemWriter;
     }
