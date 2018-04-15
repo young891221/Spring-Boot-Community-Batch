@@ -1,10 +1,8 @@
-package com.community.batch.jobs.inactive;
+package com.community.batch.jobs.inactive.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobExecutionListener;
-import org.springframework.batch.core.annotation.AfterChunk;
-import org.springframework.batch.core.annotation.BeforeChunk;
 import org.springframework.stereotype.Component;
 
 /**
@@ -14,7 +12,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class InactiveItemListener implements JobExecutionListener {
+public class InactiveIJobListener implements JobExecutionListener {
 
     public void beforeJob(JobExecution jobExecution) {
         log.info("Before Job");
@@ -24,13 +22,4 @@ public class InactiveItemListener implements JobExecutionListener {
         log.info("After Job");
     }
 
-    @BeforeChunk
-    public void beforeChunk(JobExecution jobExecution) {
-        log.info("Before Chunk");
-    }
-
-    @AfterChunk
-    public void afterChunk(JobExecution jobExecution) {
-        log.info("After Chunk");
-    }
 }

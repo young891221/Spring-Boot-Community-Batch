@@ -2,7 +2,7 @@ package com.community.batch.jobs;
 
 import com.community.batch.domain.User;
 import com.community.batch.domain.enums.UserStatus;
-import com.community.batch.jobs.inactive.InactiveItemListener;
+import com.community.batch.jobs.inactive.listener.InactiveIJobListener;
 import com.community.batch.jobs.inactive.InactiveItemProcessor;
 import com.community.batch.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -39,13 +39,13 @@ public class InactiveUserJobConfig {
     private final StepBuilderFactory stepBuilderFactory;
     private final UserRepository userRepository;
     private final EntityManagerFactory entityManagerFactory;
-    private final InactiveItemListener inactiveItemListener;
+    private final InactiveIJobListener inactiveIJobListener;
 
     @Bean
     public Job inactiveUserJob() {
         return jobBuilderFactory.get("inactiveUserJob")
                 .preventRestart()
-                .listener(inactiveItemListener)
+                .listener(inactiveIJobListener)
                 .start(inactiveJobStep())
                 .build();
     }
@@ -54,7 +54,6 @@ public class InactiveUserJobConfig {
         return stepBuilderFactory.get("inactiveUserStep")
                 .<User, User> chunk(5)
                 //.readerIsTransactionalQueue()
-                .listener(inactiveItemListener)
                 .reader(inactiveUserJpaReader)
                 .processor(inactiveUserProcessor())
                 .writer(inactiveUserWriter())
