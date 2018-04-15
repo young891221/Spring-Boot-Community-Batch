@@ -2,6 +2,7 @@ package com.community.batch.jobs;
 
 import com.community.batch.domain.User;
 import com.community.batch.domain.enums.UserStatus;
+import com.community.batch.jobs.inactive.listener.InactiveChunkListener;
 import com.community.batch.jobs.inactive.listener.InactiveIJobListener;
 import com.community.batch.jobs.inactive.InactiveItemProcessor;
 import com.community.batch.repository.UserRepository;
@@ -40,6 +41,7 @@ public class InactiveUserJobConfig {
     private final UserRepository userRepository;
     private final EntityManagerFactory entityManagerFactory;
     private final InactiveIJobListener inactiveIJobListener;
+    private final InactiveChunkListener inactiveChunkListener;
 
     @Bean
     public Job inactiveUserJob() {
@@ -57,6 +59,7 @@ public class InactiveUserJobConfig {
                 .reader(inactiveUserJpaReader)
                 .processor(inactiveUserProcessor())
                 .writer(inactiveUserWriter())
+                .listener(inactiveChunkListener)
                 .build();
     }
 

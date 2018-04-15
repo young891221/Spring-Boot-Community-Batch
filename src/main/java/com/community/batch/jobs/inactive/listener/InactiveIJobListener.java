@@ -14,10 +14,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class InactiveIJobListener implements JobExecutionListener {
 
+    @Override
     public void beforeJob(JobExecution jobExecution) {
         log.info("Before Job");
     }
 
+    @Override
     public void afterJob(JobExecution jobExecution) {
         log.info("After Job");
     }
