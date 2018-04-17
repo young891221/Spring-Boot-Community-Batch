@@ -20,31 +20,27 @@ import org.springframework.context.annotation.Configuration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+
 /**
  * Created by KimYJ on 2018-03-07.
  */
+@AllArgsConstructor
 @Configuration
 public class InactiveUserJobConfig {
 
-    @Autowired
-    private JobBuilderFactory jobBuilderFactory;
-
-    @Autowired
-    private StepBuilderFactory stepBuilderFactory;
-
-    @Autowired
     private UserRepository userRepository;
 
     @Bean
-    public Job inactiveUserJob() {
+    public Job inactiveUserJob(JobBuilderFactory jobBuilderFactory, Step inactiveJobStep) {
         return jobBuilderFactory.get("inactiveUserJob")
                 .preventRestart()
-                .start(inactiveJobStep())
+                .start(inactiveJobStep)
                 .build();
     }
 
     @Bean
-    public Step inactiveJobStep() {
+    public Step inactiveJobStep(StepBuilderFactory stepBuilderFactory) {
         return stepBuilderFactory.get("inactiveUserStep")
                 .<User, User> chunk(10)
                 .reader(inactiveUserReader())
@@ -60,8 +56,6 @@ public class InactiveUserJobConfig {
         return new QueueItemReader<>(oldUsers);
     }
 
-    @Bean
-    @StepScope
     public ItemProcessor<User, User> inactiveUserProcessor() {
         return User::setInactive;
         /*return new ItemProcessor<User, User>() {
@@ -74,8 +68,6 @@ public class InactiveUserJobConfig {
         };*/
     }
 
-    @Bean
-    @StepScope
     public ItemWriter<User> inactiveUserWriter() {
         return ((List<? extends User> users) -> userRepository.saveAll(users));
     }
