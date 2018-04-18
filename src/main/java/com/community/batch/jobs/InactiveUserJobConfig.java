@@ -6,26 +6,26 @@ import com.community.batch.jobs.inactive.InactiveItemProcessor;
 import com.community.batch.jobs.inactive.listener.InactiveChunkListener;
 import com.community.batch.jobs.inactive.listener.InactiveIJobListener;
 import com.community.batch.repository.UserRepository;
-import lombok.AllArgsConstructor;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.database.JpaItemWriter;
-import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.persistence.EntityManagerFactory;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import javax.persistence.EntityManagerFactory;
+
+import lombok.AllArgsConstructor;
 
 /**
  * Created by KimYJ on 2018-03-07.
@@ -35,28 +35,21 @@ import java.util.Map;
 public class InactiveUserJobConfig {
     private final static int CHUNK_SIZE = 5;
 
-    private final ListItemReader<User> inactiveUserReader;
-    private final UserRepository userRepository;
-    private final JpaPagingItemReader<User> inactiveUserJpaReader;
-    private final JobBuilderFactory jobBuilderFactory;
-    private final StepBuilderFactory stepBuilderFactory;
     private final EntityManagerFactory entityManagerFactory;
-    private final InactiveIJobListener inactiveIJobListener;
-    private final InactiveChunkListener inactiveChunkListener;
 
     @Bean
-    public Job inactiveUserJob() {
+    public Job inactiveUserJob(JobBuilderFactory jobBuilderFactory, InactiveIJobListener inactiveIJobListener, Step inactiveJobStep) {
         return jobBuilderFactory.get("inactiveUserJob")
                 .preventRestart()
                 .listener(inactiveIJobListener)
-                .start(inactiveJobStep())
+                .start(inactiveJobStep)
                 .build();
     }
 
-    private Step inactiveJobStep() {
+    @Bean
+    public Step inactiveJobStep(StepBuilderFactory stepBuilderFactory, ListItemReader<User> inactiveUserReader, InactiveChunkListener inactiveChunkListener) {
         return stepBuilderFactory.get("inactiveUserStep")
                 .<User, User> chunk(CHUNK_SIZE)
-                //.readerIsTransactionalQueue()
                 .reader(inactiveUserReader)
                 .processor(inactiveUserProcessor())
                 .writer(inactiveUserWriter())
@@ -66,28 +59,28 @@ public class InactiveUserJobConfig {
 
     @Bean
     @StepScope
-    public ListItemReader<User> inactiveUserReader(@Value("#{jobParameters[nowDate]}") Date nowDate) {
+    public ListItemReader<User> inactiveUserReader(@Value("#{jobParameters[nowDate]}") Date nowDate, UserRepository userRepository) {
         LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
-        List<User> inactiveUsers = userRepository.findByUpdatedDateBeforeAndStatusEquals(now.minusYears(1), UserStatus.ACTIVE);
+        List<User> inactiveUsers = userRepository.findByCreatedDateBeforeAndStatusEquals(now.minusYears(1), UserStatus.ACTIVE);
         return new ListItemReader<>(inactiveUsers);
     }
 
-    @Bean(destroyMethod="") //스프링은 destroyMethod를 사용할때 자동으로 유추하려 하는데 이 기능을 사용하지 않도록 하여 warning 메시지 삭제
+    /*@Bean(destroyMethod="")
     @StepScope
     public JpaPagingItemReader<User> inactiveUserJpaReader(@Value("#{jobParameters[nowDate]}") Date nowDate) {
         JpaPagingItemReader<User> jpaPagingItemReader = new JpaPagingItemReader<>();
-        jpaPagingItemReader.setQueryString("select u from User as u where u.updatedDate < :updatedDate and u.status = :status");
+        jpaPagingItemReader.setQueryString("select u from User as u where u.createdDate < :createdDate and u.status = :status");
 
         Map<String, Object> map = new HashMap<>();
         LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
-        map.put("updatedDate", now.minusYears(1));
+        map.put("createdDate", now.minusYears(1));
         map.put("status", UserStatus.ACTIVE);
 
         jpaPagingItemReader.setParameterValues(map);
         jpaPagingItemReader.setEntityManagerFactory(entityManagerFactory);
         jpaPagingItemReader.setPageSize(CHUNK_SIZE);
         return jpaPagingItemReader;
-    }
+    }*/
 
     private InactiveItemProcessor inactiveUserProcessor() {
         return new InactiveItemProcessor();

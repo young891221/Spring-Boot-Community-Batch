@@ -1,5 +1,5 @@
-insert into user (idx, email, name, password, social_type, status, created_date, updated_date) values (1001, 'test@test.com', 'test1', 'test1', 'FACEBOOK', 'ACTIVE', '2016-03-01T00:00:00', '2016-03-01T00:00:00');
-insert into user (idx, email, name, password, social_type, status, created_date, updated_date) values (1002, 'test@test.com', 'test2', 'test2', 'FACEBOOK', 'ACTIVE', '2016-03-01T00:00:00', '2016-03-01T00:00:00');
+insert into user (idx, email, name, password, social_type, status, created_date, updated_date) values (1001, 'test@test.com', 'test1', 'test1', 'FACEBOOK', 'ACTIVE', '2016-03-01T00:00:00', '2018-03-01T00:00:00');
+insert into user (idx, email, name, password, social_type, status, created_date, updated_date) values (1002, 'test@test.com', 'test2', 'test2', 'FACEBOOK', 'ACTIVE', '2016-03-01T00:00:00', '2018-03-01T00:00:00');
 insert into user (idx, email, name, password, social_type, status, created_date, updated_date) values (1003, 'test@test.com', 'test3', 'test3', 'FACEBOOK', 'ACTIVE', '2016-03-01T00:00:00', '2016-03-01T00:00:00');
 insert into user (idx, email, name, password, social_type, status, created_date, updated_date) values (1004, 'test@test.com', 'test4', 'test4', 'FACEBOOK', 'ACTIVE', '2016-03-01T00:00:00', '2016-03-01T00:00:00');
 insert into user (idx, email, name, password, social_type, status, created_date, updated_date) values (1005, 'test@test.com', 'test5', 'test5', 'FACEBOOK', 'ACTIVE', '2016-03-01T00:00:00', '2016-03-01T00:00:00');
