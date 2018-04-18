@@ -1,8 +1,7 @@
-package com.community.batch.jobs;
+package com.community.batch.jobs.inactive;
 
 import com.community.batch.domain.User;
 import com.community.batch.domain.enums.UserStatus;
-import com.community.batch.jobs.inactive.InactiveItemProcessor;
 import com.community.batch.jobs.inactive.listener.InactiveChunkListener;
 import com.community.batch.jobs.inactive.listener.InactiveIJobListener;
 import com.community.batch.repository.UserRepository;
