@@ -1,6 +1,7 @@
 package com.community.batch.domain;
 
 
+import com.community.batch.domain.enums.Grade;
 import com.community.batch.domain.enums.SocialType;
 import com.community.batch.domain.enums.UserStatus;
 
@@ -56,19 +57,24 @@ public class User implements Serializable {
     private UserStatus status;
 
     @Column
+    @Enumerated(EnumType.STRING)
+    private Grade grade;
+
+    @Column
     private LocalDateTime createdDate;
 
     @Column
     private LocalDateTime updatedDate;
 
     @Builder
-    public User(String name, String password, String email, String pincipal, SocialType socialType, UserStatus status, LocalDateTime createdDate, LocalDateTime updatedDate) {
+    public User(String name, String password, String email, String pincipal, SocialType socialType, UserStatus status, Grade grade, LocalDateTime createdDate, LocalDateTime updatedDate) {
         this.name = name;
         this.password = password;
         this.email = email;
         this.pincipal = pincipal;
         this.socialType = socialType;
         this.status = status;
+        this.grade = grade;
         this.createdDate = createdDate;
         this.updatedDate = updatedDate;
     }
