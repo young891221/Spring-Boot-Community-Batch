@@ -19,11 +19,14 @@ import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -50,7 +53,19 @@ public class InactiveUserJobConfig {
     }
 
     @Bean
-    public Flow inactiveJobFlow(Step inactiveJobStep) {
+    public Flow multiFlow(Step inactiveJobStep) {
+        Flow flows[] = new Flow[5];
+        IntStream.range(0, flows.length).forEach(i -> flows[i] = new FlowBuilder<Flow>("MultiFlow"+i).from(inactiveJobFlow(inactiveJobStep)).end());
+
+        FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("MultiFlowTest");
+        return flowBuilder
+                .split(taskExecutor())
+                .add(flows)
+                .build();
+    }
+
+    //빈으로 생성하면 싱글톤이기 때문에 멀티 Flow를 위해서는 빈으로 등록하면 안됨
+    private Flow inactiveJobFlow(Step inactiveJobStep) {
         FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("inactiveJobFlow");
         return flowBuilder
                 .start(new InactiveJobExecutionDecider())
@@ -103,5 +118,10 @@ public class InactiveUserJobConfig {
         JpaItemWriter<User> jpaItemWriter = new JpaItemWriter<>();
         jpaItemWriter.setEntityManagerFactory(entityManagerFactory);
         return jpaItemWriter;
+    }
+
+    @Bean
+    public TaskExecutor taskExecutor(){
+        return new SimpleAsyncTaskExecutor();
     }
 }
