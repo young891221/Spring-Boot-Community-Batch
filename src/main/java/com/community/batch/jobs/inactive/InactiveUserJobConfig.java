@@ -11,6 +11,9 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepScope;
+import org.springframework.batch.core.job.builder.FlowBuilder;
+import org.springframework.batch.core.job.flow.Flow;
+import org.springframework.batch.core.job.flow.FlowExecutionStatus;
 import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,12 +40,23 @@ public class InactiveUserJobConfig {
     private final EntityManagerFactory entityManagerFactory;
 
     @Bean
-    public Job inactiveUserJob(JobBuilderFactory jobBuilderFactory, InactiveIJobListener inactiveIJobListener, Step inactiveJobStep) {
+    public Job inactiveUserJob(JobBuilderFactory jobBuilderFactory, InactiveIJobListener inactiveIJobListener, Flow inactiveJobFlow) {
         return jobBuilderFactory.get("inactiveUserJob")
                 .preventRestart()
                 .listener(inactiveIJobListener)
-                .start(inactiveJobStep)
+                .start(inactiveJobFlow)
+                .end()
                 .build();
+    }
+
+    @Bean
+    public Flow inactiveJobFlow(Step inactiveJobStep) {
+        FlowBuilder<Flow> flowBuilder = new FlowBuilder<>("inactiveJobFlow");
+        return flowBuilder
+                .start(new InactiveJobExecutionDecider())
+                .on(FlowExecutionStatus.FAILED.getName()).end()
+                .on(FlowExecutionStatus.COMPLETED.getName()).to(inactiveJobStep)
+                .end();
     }
 
     @Bean
