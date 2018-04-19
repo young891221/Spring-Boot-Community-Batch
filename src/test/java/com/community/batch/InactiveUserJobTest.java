@@ -32,8 +32,7 @@ public class InactiveUserJobTest {
 
 	@Test
 	public void 휴면_회원_전환_테스트() throws Exception {
-		Date nowDate = new Date();
-		JobExecution jobExecution = jobLauncherTestUtils.launchJob(new JobParametersBuilder().addDate("nowDate", nowDate).toJobParameters());
+		JobExecution jobExecution = jobLauncherTestUtils.launchJob();
 
 		assertEquals(BatchStatus.COMPLETED, jobExecution.getStatus());
 		assertEquals(11, userRepository.findAll().size());
