@@ -27,7 +27,7 @@ import javax.persistence.EntityManagerFactory;
 import lombok.AllArgsConstructor;
 
 /**
- * Created by KimYJ on 2018-03-07.
+ * Created by KimYJ on 2018-03-07
  */
 @Configuration
 @AllArgsConstructor
