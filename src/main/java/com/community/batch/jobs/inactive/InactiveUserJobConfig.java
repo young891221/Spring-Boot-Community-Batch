@@ -4,6 +4,7 @@ import com.community.batch.domain.User;
 import com.community.batch.domain.enums.UserStatus;
 import com.community.batch.jobs.inactive.listener.InactiveChunkListener;
 import com.community.batch.jobs.inactive.listener.InactiveIJobListener;
+import com.community.batch.jobs.inactive.listener.InativeStepListener;
 import com.community.batch.repository.UserRepository;
 
 import org.springframework.batch.core.Job;
@@ -46,13 +47,14 @@ public class InactiveUserJobConfig {
     }
 
     @Bean
-    public Step inactiveJobStep(StepBuilderFactory stepBuilderFactory, ListItemReader<User> inactiveUserReader, InactiveChunkListener inactiveChunkListener) {
+    public Step inactiveJobStep(StepBuilderFactory stepBuilderFactory, ListItemReader<User> inactiveUserReader, InactiveChunkListener inactiveChunkListener, InativeStepListener inativeStepListener) {
         return stepBuilderFactory.get("inactiveUserStep")
                 .<User, User> chunk(CHUNK_SIZE)
                 .reader(inactiveUserReader)
                 .processor(inactiveUserProcessor())
                 .writer(inactiveUserWriter())
                 .listener(inactiveChunkListener)
+                .listener(inativeStepListener)
                 .build();
     }
 
