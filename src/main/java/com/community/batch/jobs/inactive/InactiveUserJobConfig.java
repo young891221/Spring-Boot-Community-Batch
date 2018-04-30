@@ -17,6 +17,8 @@ import org.springframework.batch.item.support.ListItemReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -47,7 +49,7 @@ public class InactiveUserJobConfig {
     }
 
     @Bean
-    public Step inactiveJobStep(StepBuilderFactory stepBuilderFactory, ListItemReader<User> inactiveUserReader, InactiveChunkListener inactiveChunkListener, InativeStepListener inativeStepListener) {
+    public Step inactiveJobStep(StepBuilderFactory stepBuilderFactory, ListItemReader<User> inactiveUserReader, InactiveChunkListener inactiveChunkListener, InativeStepListener inativeStepListener, TaskExecutor taskExecutor) {
         return stepBuilderFactory.get("inactiveUserStep")
                 .<User, User> chunk(CHUNK_SIZE)
                 .reader(inactiveUserReader)
@@ -55,7 +57,14 @@ public class InactiveUserJobConfig {
                 .writer(inactiveUserWriter())
                 .listener(inactiveChunkListener)
                 .listener(inativeStepListener)
+                .taskExecutor(taskExecutor)
+                .throttleLimit(5)
                 .build();
+    }
+
+    @Bean
+    public TaskExecutor taskExecutor(){
+        return new SimpleAsyncTaskExecutor("Batch_Task");
     }
 
     @Bean
