@@ -43,11 +43,11 @@ public class InactiveUserJobConfig {
     private final EntityManagerFactory entityManagerFactory;
 
     @Bean
-    public Job inactiveUserJob(JobBuilderFactory jobBuilderFactory, InactiveIJobListener inactiveIJobListener, Flow inactiveJobFlow) {
+    public Job inactiveUserJob(JobBuilderFactory jobBuilderFactory, InactiveIJobListener inactiveIJobListener, Flow multiFlow) {
         return jobBuilderFactory.get("inactiveUserJob")
                 .preventRestart()
                 .listener(inactiveIJobListener)
-                .start(inactiveJobFlow)
+                .start(multiFlow)
                 .end()
                 .build();
     }
@@ -122,6 +122,6 @@ public class InactiveUserJobConfig {
 
     @Bean
     public TaskExecutor taskExecutor(){
-        return new SimpleAsyncTaskExecutor();
+        return new SimpleAsyncTaskExecutor("Batch_Task");
     }
 }
