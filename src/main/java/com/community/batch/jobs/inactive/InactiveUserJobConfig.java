@@ -58,7 +58,7 @@ public class InactiveUserJobConfig {
                 .listener(inactiveChunkListener)
                 .listener(inativeStepListener)
                 .taskExecutor(taskExecutor)
-                .throttleLimit(4)
+                .throttleLimit(2)
                 .build();
     }
 
