@@ -109,6 +109,6 @@ public class InactiveUserJobConfig {
 
     @Bean
     public TaskExecutor taskExecutor() {
-        return new SimpleAsyncTaskExecutor();
+        return new SimpleAsyncTaskExecutor("Batch_Task");
     }
 }
