@@ -62,6 +62,13 @@ public class InactiveUserJobConfig {
                 .build();
     }
 
+    /*@Bean
+    public Step inactiveJobStep(StepBuilderFactory stepBuilderFactory, InactiveItemTasklet inactiveItemTasklet) {
+        return stepBuilderFactory.get("inactiveUserTaskleyStep")
+                .tasklet(inactiveItemTasklet)
+                .build();
+    }*/
+
     @Bean
     public TaskExecutor taskExecutor(){
         return new SimpleAsyncTaskExecutor("Batch_Task");
