@@ -55,7 +55,7 @@ public class InactiveUserJobConfig {
         return stepBuilderFactory
                 .get("parititionerStep")
                 .partitioner("parititionerStep", new InactiveUserPartitioner())
-                .gridSize(10)
+                .gridSize(5)
                 .step(inactiveJobStep)
                 .taskExecutor(taskExecutor())
                 .build();
