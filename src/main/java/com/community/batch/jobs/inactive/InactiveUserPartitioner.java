@@ -11,6 +11,7 @@ import java.util.Map;
 public class InactiveUserPartitioner implements Partitioner {
 
     private static final String GRADE = "grade";
+    private static final String INACTIVE_USER_TASK = "InactiveUserTask";
 
     @Override
     public Map<String, ExecutionContext> partition(int gridSize) {
@@ -19,7 +20,7 @@ public class InactiveUserPartitioner implements Partitioner {
         for (int i = 0, length = grades.length; i < length; i++) {
             ExecutionContext context = new ExecutionContext();
             context.putString(GRADE, grades[i].name());
-            map.put("InactiveUserTask" + i, context);
+            map.put(INACTIVE_USER_TASK + i, context);
         }
         return map;
     }
