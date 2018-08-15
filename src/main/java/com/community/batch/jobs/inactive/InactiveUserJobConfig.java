@@ -78,7 +78,7 @@ public class InactiveUserJobConfig {
     @StepScope
     public ListItemReader<User> inactiveUserReader(@Value("#{jobParameters[nowDate]}") Date nowDate, UserRepository userRepository) {
         LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
-        List<User> inactiveUsers = userRepository.findByCreatedDateBeforeAndStatusEquals(now.minusYears(1), UserStatus.ACTIVE);
+        List<User> inactiveUsers = userRepository.findByUpdatedDateBeforeAndStatusEquals(now.minusYears(1), UserStatus.ACTIVE);
         return new ListItemReader<>(inactiveUsers);
     }
 

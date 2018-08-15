@@ -29,7 +29,7 @@ public class InactiveItemTasklet implements Tasklet {
         //reader
         Date nowDate = (Date) chunkContext.getStepContext().getJobParameters().get("nowDate");
         LocalDateTime now = LocalDateTime.ofInstant(nowDate.toInstant(), ZoneId.systemDefault());
-        List<User> inactiveUsers = userRepository.findByCreatedDateBeforeAndStatusEquals(now.minusYears(1), UserStatus.ACTIVE);
+        List<User> inactiveUsers = userRepository.findByUpdatedDateBeforeAndStatusEquals(now.minusYears(1), UserStatus.ACTIVE);
 
         //processor
         inactiveUsers = inactiveUsers.stream()
